@@ -1,6 +1,6 @@
 Dashname = "Test"
 
-Theme = ""
+Theme = "theme"
 
 [[widgets]]
 Type="display"

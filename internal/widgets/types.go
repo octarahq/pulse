@@ -1,10 +1,14 @@
 package widgets
 
+type Widget struct {
+	BaseWidget
+	DisplayWidget
+}
+
 type BaseWidget struct {
 	Type string
 }
 
-type DisplayWidjet struct {
-	*BaseWidget
+type DisplayWidget struct {
 	Value string
 }
