@@ -1,0 +1,7 @@
+Dashname = "Test"
+
+Theme = ""
+
+[[widgets]]
+Type="display"
+Value="test"
