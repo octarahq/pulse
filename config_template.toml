@@ -7,9 +7,11 @@ theme = "theme"
     type = "display"
     width = 4
     value = "test"
+    refresh = 3
 
     [[rows.widgets]]
     id = 2
     type = "clock"
     width = 8
     timezone = "Europe/Paris"
+    refresh = 3

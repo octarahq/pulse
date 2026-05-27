@@ -7,9 +7,10 @@ type Widget interface {
 type Row []Widget
 
 type BaseWidget struct {
-	Id    int    `toml:"id"`
-	Type  string `toml:"type"`
-	Width int    `toml:"width"`
+	Id      int    `toml:"id"`
+	Type    string `toml:"type"`
+	Width   int    `toml:"width"`
+	Refresh int    `toml:"refresh"`
 }
 
 func (b BaseWidget) GetBase() BaseWidget {
