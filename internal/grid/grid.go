@@ -26,6 +26,13 @@ func NewEngine(width, height int) *Engine {
 }
 
 func (e *Engine) DrawBox(widgetX, widgetY, widgetWidth, widgetHeight int) {
+	if widgetWidth == -1 {
+		widgetWidth = e.Width - widgetX
+	}
+	if widgetHeight == -1 {
+		widgetHeight = e.Height - widgetY
+	}
+
 	for i := 0; i < widgetWidth; i++ {
 		for j := 0; j < widgetHeight; j++ {
 			x := widgetX + i
@@ -59,13 +66,24 @@ func (e *Engine) DrawBox(widgetX, widgetY, widgetWidth, widgetHeight int) {
 }
 
 func (e *Engine) DrawText(widgetX, widgetY, widgetWidth, widgetHeight int, text string) {
+	if widgetWidth == -1 {
+		widgetWidth = e.Width - widgetX
+	}
+	if widgetHeight == -1 {
+		widgetHeight = e.Height - widgetY
+	}
+
 	runes := []rune(text)
-	textLen := len(runes)
 
 	availWidth := widgetWidth - 2
 	if availWidth <= 0 || widgetHeight <= 2 {
 		return
 	}
+
+	if len(runes) > availWidth {
+		runes = runes[:availWidth]
+	}
+	textLen := len(runes)
 
 	startX := widgetX + 1 + (availWidth-textLen)/2
 	centerY := widgetY + widgetHeight/2
@@ -104,7 +122,7 @@ func (e *Engine) merge(old, new rune) rune {
 		return '┼'
 	}
 
-	return new
+	return old
 }
 
 func (e *Engine) Flush() string {
