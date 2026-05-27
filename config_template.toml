@@ -3,5 +3,11 @@ Dashname = "Test"
 Theme = "theme"
 
 [[widgets]]
+Id=1
 Type="display"
 Value="test"
+
+[[widgets]]
+Id = 2
+Type = "clock"
+Timezone = "Europe/Paris"

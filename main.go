@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"pulse/internal/config"
 )
@@ -8,5 +9,6 @@ import (
 func main() {
 	path := "config_template.toml"
 	file, _ := os.ReadFile(path)
-	config.Parser(string(file))
+	cfg, _ := config.Parser(string(file))
+	fmt.Printf("%+v\n", cfg)
 }
