@@ -4,12 +4,22 @@ import (
 	"fmt"
 	"pulse/internal/grid"
 	"time"
+
+	"github.com/BurntSushi/toml"
 )
 
 type CalendarWidget struct {
 	BaseWidget
 	Format   string `toml:"format"` // "compact" | "full"
 	Timezone string `toml:"timezone"`
+}
+
+func init() {
+	Register("calendar", func(prim toml.Primitive, meta *toml.MetaData) (Widget, error) {
+		var w CalendarWidget
+		err := meta.PrimitiveDecode(prim, &w)
+		return w, err
+	})
 }
 
 func (w CalendarWidget) Render(e *grid.Engine) {

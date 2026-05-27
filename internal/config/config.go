@@ -38,28 +38,17 @@ func Parser(tomlContent string) (Config, error) {
 			return Config{}, fmt.Errorf("fail parsing base widget: %w", err)
 		}
 
-		switch base.Type {
-		case "display":
-			var w widgets.DisplayWidget
-			if err := meta.PrimitiveDecode(prim, &w); err != nil {
-				return Config{}, fmt.Errorf("fail parsing display widget: %w", err)
-			}
-			cfg.Widgets = append(cfg.Widgets, w)
-		case "clock":
-			var w widgets.ClockWidget
-			if err := meta.PrimitiveDecode(prim, &w); err != nil {
-				return Config{}, fmt.Errorf("fail parsing clock widget: %w", err)
-			}
-			cfg.Widgets = append(cfg.Widgets, w)
-		case "calendar":
-			var w widgets.CalendarWidget
-			if err := meta.PrimitiveDecode(prim, &w); err != nil {
-				return Config{}, fmt.Errorf("fail parsing calendar widget: %w", err)
-			}
-			cfg.Widgets = append(cfg.Widgets, w)
-
-		default:
+		factory, exists := widgets.Registry[base.Type]
+		if !exists {
+			return Config{}, fmt.Errorf("unknown widget type: %s", base.Type)
 		}
+
+		w, err := factory(prim, &meta)
+		if err != nil {
+			return Config{}, fmt.Errorf("fail parsing widget %s: %w", base.Type, err)
+		}
+
+		cfg.Widgets = append(cfg.Widgets, w)
 	}
 
 	return cfg, nil

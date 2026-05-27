@@ -5,6 +5,7 @@ import (
 	"os"
 	"pulse/internal/config"
 	"pulse/internal/grid"
+	_ "pulse/internal/widgets"
 	"time"
 )
 

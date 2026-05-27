@@ -4,7 +4,17 @@ import (
 	"fmt"
 	"pulse/internal/grid"
 	"time"
+
+	"github.com/BurntSushi/toml"
 )
+
+func init() {
+	Register("clock", func(prim toml.Primitive, meta *toml.MetaData) (Widget, error) {
+		var w ClockWidget
+		err := meta.PrimitiveDecode(prim, &w)
+		return w, err
+	})
+}
 
 type ClockWidget struct {
 	BaseWidget
