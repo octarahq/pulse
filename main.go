@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"pulse/internal/config"
-	"pulse/internal/display"
+	"pulse/internal/grid"
 	"time"
 )
 
@@ -13,18 +13,27 @@ func main() {
 
 	path := "config_template.toml"
 	file, _ := os.ReadFile(path)
-	cfg, _ := config.Parser(string(file))
-
-	var minRefresh int = 0
-	for _, row := range cfg.Rows {
-		for _, wid := range row {
-			minRefresh = min(minRefresh, wid.GetBase().Refresh)
-		}
+	cfg, err := config.Parser(string(file))
+	if err != nil {
+		fmt.Println("Error parsing config:", err)
+		return
 	}
 
-	for {
-		display.RenderDisplay(cfg)
+	engine := grid.NewEngine(120, 30)
 
-		time.Sleep(time.Duration(minRefresh) * time.Second)
+	for {
+		for i := range engine.Buffer {
+			for j := range engine.Buffer[i] {
+				engine.Buffer[i][j] = ' '
+			}
+		}
+
+		for _, w := range cfg.Widgets {
+			w.Render(engine)
+		}
+
+		fmt.Print(engine.Flush())
+
+		time.Sleep(3 * time.Second)
 	}
 }

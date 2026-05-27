@@ -1,22 +1,13 @@
 package widgets
 
-import "strings"
+import "pulse/internal/grid"
 
-func Display(widget DisplayWidget, width int, height int) []string {
-	innerWidth := width - 2
+type DisplayWidget struct {
+	BaseWidget
+	Value string `toml:"value"`
+}
 
-	text := widget.Value
-	runes := []rune(text)
-
-	if len(runes) > innerWidth {
-		text = string(runes[:innerWidth])
-		return []string{text}
-	}
-
-	totalSpaces := innerWidth - len(runes)
-	spacesLeft := totalSpaces / 2
-	spacesRight := totalSpaces - spacesLeft
-
-	centeredText := strings.Repeat(" ", spacesLeft) + text + strings.Repeat(" ", spacesRight)
-	return []string{centeredText}
+func (w DisplayWidget) Render(e *grid.Engine) {
+	e.DrawBox(w.X, w.Y, w.Width, w.Height)
+	e.DrawText(w.X, w.Y, w.Width, w.Height, w.Value)
 }

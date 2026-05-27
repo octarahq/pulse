@@ -1,17 +1,20 @@
 dashname = "Test"
 theme = "theme"
 
-[[rows]]
-    [[rows.widgets]]
-    id = 1
-    type = "display"
-    width = 4
-    value = "test"
-    refresh = 3
+[[widgets]]
+id = 1
+type = "display"
+x = 2
+y = 2
+width = 24
+height = 5
+value = "Wi-Fi"
 
-    [[rows.widgets]]
-    id = 2
-    type = "clock"
-    width = 8
-    timezone = "Europe/Paris"
-    refresh = 3
+[[widgets]]
+id = 2
+type = "display"
+x = 25
+y = 2
+width = 24
+height = 5
+value = "Bluetooth"

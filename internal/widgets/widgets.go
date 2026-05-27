@@ -1,28 +1,16 @@
 package widgets
 
-type Widget interface {
-	GetBase() BaseWidget
-}
+import "pulse/internal/grid"
 
-type Row []Widget
+type Widget interface {
+	Render(e *grid.Engine)
+}
 
 type BaseWidget struct {
-	Id      int    `toml:"id"`
-	Type    string `toml:"type"`
-	Width   int    `toml:"width"`
-	Refresh int    `toml:"refresh"`
-}
-
-func (b BaseWidget) GetBase() BaseWidget {
-	return b
-}
-
-type DisplayWidget struct {
-	BaseWidget
-	Value string `toml:"value"`
-}
-
-type ClockWidget struct {
-	BaseWidget
-	Timezone string `toml:"timezone"`
+	ID     int    `toml:"id"`
+	Type   string `toml:"type"`
+	X      int    `toml:"x"`
+	Y      int    `toml:"y"`
+	Width  int    `toml:"width"`
+	Height int    `toml:"height"`
 }
