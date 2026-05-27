@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	engine := grid.NewEngine(120, 10)
+	engine := grid.NewEngine(140, 20)
 
 	for {
 		for i := range engine.Buffer {

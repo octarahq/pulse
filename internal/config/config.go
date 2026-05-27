@@ -45,6 +45,19 @@ func Parser(tomlContent string) (Config, error) {
 				return Config{}, fmt.Errorf("fail parsing display widget: %w", err)
 			}
 			cfg.Widgets = append(cfg.Widgets, w)
+		case "clock":
+			var w widgets.ClockWidget
+			if err := meta.PrimitiveDecode(prim, &w); err != nil {
+				return Config{}, fmt.Errorf("fail parsing clock widget: %w", err)
+			}
+			cfg.Widgets = append(cfg.Widgets, w)
+		case "calendar":
+			var w widgets.CalendarWidget
+			if err := meta.PrimitiveDecode(prim, &w); err != nil {
+				return Config{}, fmt.Errorf("fail parsing calendar widget: %w", err)
+			}
+			cfg.Widgets = append(cfg.Widgets, w)
+
 		default:
 		}
 	}
