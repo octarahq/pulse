@@ -1,13 +1,15 @@
-Dashname = "Test"
+dashname = "Test"
+theme = "theme"
 
-Theme = "theme"
+[[rows]]
+    [[rows.widgets]]
+    id = 1
+    type = "display"
+    width = 4
+    value = "test"
 
-[[widgets]]
-Id=1
-Type="display"
-Value="test"
-
-[[widgets]]
-Id = 2
-Type = "clock"
-Timezone = "Europe/Paris"
+    [[rows.widgets]]
+    id = 2
+    type = "clock"
+    width = 8
+    timezone = "Europe/Paris"
