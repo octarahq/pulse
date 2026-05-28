@@ -76,7 +76,7 @@ func DisplayGauge(e *grid.Engine, w BaseWidget, value float64, max float64, unit
 func DisplayGraph(e *grid.Engine, w BaseWidget, stats []int, maxint, unit string) {
 	e.DrawBox(w.X, w.Y, w.Width, w.Height)
 
-	textLabel := fmt.Sprintf(" %s %s ", maxint, unit)
+	textLabel := fmt.Sprintf(" %s %s", maxint, unit)
 	textRunes := []rune(textLabel)
 	textLen := len([]rune(textLabel))
 
@@ -103,7 +103,7 @@ func DisplayGraph(e *grid.Engine, w BaseWidget, stats []int, maxint, unit string
 			hRight = 4
 		}
 
-		char := chars.BrailleGrid[hRight][hLeft]
+		char := chars.BrailleGrid[hLeft][hRight]
 		graphRunes = append(graphRunes, char)
 	}
 
