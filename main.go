@@ -12,7 +12,7 @@ import (
 func main() {
 	fmt.Print("\033[H\033[2J")
 
-	path := "config_template.toml"
+	path := "config.toml"
 	file, _ := os.ReadFile(path)
 	cfg, err := config.Parser(string(file))
 	if err != nil {
