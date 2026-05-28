@@ -25,7 +25,7 @@ func NewEngine(width, height int) *Engine {
 	}
 }
 
-func (e *Engine) DrawBox(widgetX, widgetY, widgetWidth, widgetHeight int) {
+func (e *Engine) Box(widgetX, widgetY, widgetWidth, widgetHeight int, title string) {
 	if widgetWidth == -1 {
 		widgetWidth = e.Width - widgetX
 	}
@@ -54,7 +54,22 @@ func (e *Engine) DrawBox(widgetX, widgetY, widgetWidth, widgetHeight int) {
 				char = '┘'
 			case i == 0 || i == widgetWidth-1:
 				char = '│'
-			case j == 0 || j == widgetHeight-1:
+			case j == 0:
+				if title != "" {
+					titleText := " " + title + " "
+					titleStart := 2
+					titleEnd := titleStart + len([]rune(titleText))
+
+					if i >= titleStart && i < titleEnd {
+						char = []rune(titleText)[i-titleStart]
+					} else {
+						char = '─'
+					}
+				} else {
+					char = '─'
+				}
+
+			case j == widgetHeight-1:
 				char = '─'
 			default:
 				continue
@@ -63,6 +78,14 @@ func (e *Engine) DrawBox(widgetX, widgetY, widgetWidth, widgetHeight int) {
 			e.Buffer[y][x] = e.merge(e.Buffer[y][x], char)
 		}
 	}
+}
+
+func (e *Engine) DrawBox(widgetX, widgetY, widgetWidth, widgetHeight int) {
+	e.Box(widgetX, widgetY, widgetWidth, widgetHeight, "")
+}
+
+func (e *Engine) DrawBoxTitle(widgetX, widgetY, widgetWidth, widgetHeight int, title string) {
+	e.Box(widgetX, widgetY, widgetWidth, widgetHeight, title)
 }
 
 func (e *Engine) DrawText(widgetX, widgetY, widgetWidth, widgetHeight int, text string) {
