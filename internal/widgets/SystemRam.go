@@ -28,6 +28,13 @@ func init() {
 }
 
 func (w *RamSysWidget) Render(e *grid.Engine) {
+	textLen := 8
+	neededStats := (w.Width - 2 - textLen) * 2
+
+	if len(w.History) < neededStats {
+		w.History = make([]int, neededStats)
+	}
+
 	vm, err := mem.VirtualMemory()
 	if err != nil {
 		DisplayError(e, w.BaseWidget, "Cannot get ram usage")
