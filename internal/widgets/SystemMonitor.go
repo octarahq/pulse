@@ -1,0 +1,142 @@
+package widgets
+
+import (
+	"fmt"
+	"pulse/internal/grid"
+	"pulse/internal/utils/monitor"
+	"strconv"
+	"strings"
+
+	"github.com/BurntSushi/toml"
+)
+
+type MonitorSysWidget struct {
+	BaseWidget
+	Format  string `toml:"format"`
+	History map[string]int
+	Lines   []string
+}
+
+func init() {
+	Register("sys_monitor", func(prim toml.Primitive, meta *toml.MetaData) (Widget, error) {
+		var w MonitorSysWidget
+		err := meta.PrimitiveDecode(prim, &w)
+		if err != nil {
+			return nil, err
+		}
+		w.History = map[string]int{}
+
+		return &w, nil
+	})
+}
+
+func (w *MonitorSysWidget) Render(e *grid.Engine) {
+	if w.Title == "" {
+		w.Title = "System monitor"
+	}
+	e.DrawBoxTitle(w.X, w.Y, w.Width, w.Height, w.Title)
+
+	if len(w.Lines) == 0 {
+		e.DrawText(w.X, w.Y, w.Width, w.Height, "No Data available")
+		return
+	}
+
+	var lines []string
+
+	for _, line := range w.Lines {
+		args := strings.Split(line, ":")
+
+		switch {
+		case args[0] == "cpu":
+			value, err := monitor.GetGlobalCpuPercent()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu usage")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %.2f%%", value))
+		case strings.HasPrefix(args[0], "cpu.core"):
+			coreStr := strings.TrimPrefix(args[0], "cpu.core")
+
+			coreID, err := strconv.Atoi(coreStr)
+			if err != nil {
+				lines = append(lines, "Invalid core id")
+				break
+			}
+
+			value, err := monitor.GetCpuCorePercent(coreID)
+			if err != nil {
+				lines = append(lines, "Cannot get cpu core usage")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU Core %d : %.2f%%", coreID, value))
+
+		case args[0] == "cpu.temp":
+			value, err := monitor.GetCpuTemp()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu temp")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %d°", int(value)))
+		case args[0] == "cpu.freq":
+			value, err := monitor.GetCpuFrequencyGHz()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu freq")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %.1f GHz", value))
+		case args[0] == "cpu.power":
+			value, err := monitor.GetCpuPowerWatts()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu power usage (need admin)")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %.1f Watt", value))
+
+		case args[0] == "cpu.user":
+			value, err := monitor.GetCpuStateUser()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu user")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %.2f%%", value))
+
+		case args[0] == "cpu.system":
+			value, err := monitor.GetCpuStateSystem()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu system")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %.2f%%", value))
+
+		case args[0] == "cpu.idle":
+			value, err := monitor.GetCpuStateIdle()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu idle")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %.2f%%", value))
+
+		case args[0] == "cpu.iowait":
+			value, err := monitor.GetCpuStateIowait()
+			if err != nil {
+				lines = append(lines, "Cannot get cpu iowait")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("CPU : %.2f%%", value))
+
+		}
+	}
+
+	for i, l := range lines {
+		e.DrawText(w.X, w.Y+i, w.Width, w.Height, l)
+	}
+}

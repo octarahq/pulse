@@ -13,6 +13,7 @@ type Widget interface {
 type BaseWidget struct {
 	ID     int    `toml:"id"`
 	Type   string `toml:"type"`
+	Title  string `toml:"title"`
 	X      int    `toml:"x"`
 	Y      int    `toml:"y"`
 	Width  int    `toml:"width"`
