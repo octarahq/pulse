@@ -88,6 +88,38 @@ func (e *Engine) DrawBoxTitle(widgetX, widgetY, widgetWidth, widgetHeight int, t
 	e.Box(widgetX, widgetY, widgetWidth, widgetHeight, title)
 }
 
+func (e *Engine) DrawTextDontCenter(widgetX, widgetY, widgetWidth, widgetHeight int, text string) {
+	if widgetWidth == -1 {
+		widgetWidth = e.Width - widgetX
+	}
+	if widgetHeight == -1 {
+		widgetHeight = e.Height - widgetY
+	}
+
+	runes := []rune(text)
+
+	availWidth := widgetWidth - 2
+	if availWidth <= 0 || widgetHeight <= 2 {
+		return
+	}
+
+	if len(runes) > availWidth {
+		runes = runes[:availWidth]
+	}
+
+	startX := widgetX + 1
+	textY := widgetY + 1
+
+	for i, r := range runes {
+		x := startX + i
+		if x > widgetX && x < widgetX+widgetWidth-1 && textY > widgetY && textY < widgetY+widgetHeight-1 {
+			if x >= 0 && x < e.Width && textY >= 0 && textY < e.Height {
+				e.Buffer[textY][x] = r
+			}
+		}
+	}
+}
+
 func (e *Engine) DrawText(widgetX, widgetY, widgetWidth, widgetHeight int, text string) {
 	if widgetWidth == -1 {
 		widgetWidth = e.Width - widgetX

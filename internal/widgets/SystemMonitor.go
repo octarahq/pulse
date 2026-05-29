@@ -47,6 +47,7 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 		args := strings.Split(line, ":")
 
 		switch {
+		// CPU
 		case args[0] == "cpu":
 			value, err := monitor.GetGlobalCpuPercent()
 			if err != nil {
@@ -133,10 +134,66 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 
 			lines = append(lines, fmt.Sprintf("CPU : %.2f%%", value))
 
+		// RAM
+		case args[0] == "ram":
+			value, err := monitor.GetRamAvailable()
+			if err != nil {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+			total, err := monitor.GetRamTotal()
+			if err != nil {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("RAM : %.2f/%.2fGo", value, total))
+		case args[0] == "ram.percent":
+			value, err := monitor.GetRamAvailable()
+			if err != nil {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+			total, err := monitor.GetRamTotal()
+			if err != nil {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+
+			if total == 0 {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("RAM : %.2f%%", value/total*100))
+		case args[0] == "ram.available":
+			value, err := monitor.GetRamAvailable()
+			if err != nil {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("RAM : %.2fGo", value))
+		case args[0] == "ram.cached":
+			value, err := monitor.GetRamCached()
+			if err != nil {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("RAM : %.2fGo", value))
+		case args[0] == "ram.buffers":
+			value, err := monitor.GetRamBuffer()
+			if err != nil {
+				lines = append(lines, "Cannot get ram stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("RAM : %.2fGo", value))
 		}
 	}
 
 	for i, l := range lines {
-		e.DrawText(w.X, w.Y+i, w.Width, w.Height, l)
+		e.DrawTextDontCenter(w.X, w.Y+i, w.Width, w.Height, fmt.Sprintf(" %s", l))
 	}
 }
