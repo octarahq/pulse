@@ -51,37 +51,37 @@ func (w *NetworkWidget) Render(e *grid.Engine) {
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val, _ := network.GetNetIoIn(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s in :", iface), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s in:", shortIface(iface)), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.out"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val, _ := network.GetNetIoOut(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s out :", iface), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s out:", shortIface(iface)), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.total"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val, _ := network.GetNetIoTotal(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s tot :", iface), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s tot:", shortIface(iface)), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.speed"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			in, out, _ := network.GetNetIoSpeed(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s :", iface), 0, 0, fmt.Sprintf(" ▼ %.1f MB/s ▲ %.1f MB/s", in, out), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s:", shortIface(iface)), 0, 0, fmt.Sprintf(" ▼ %.1f MB/s ▲ %.1f MB/s", in, out), w.Width))
 
 		case strings.HasPrefix(args[0], "net.bytes.in"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val, _ := network.GetNetIoBytesIn(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s in :", iface), float64(val), 1000.0, fmt.Sprintf(" %.2f GB", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s in:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %.2f GB", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.bytes.out"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val, _ := network.GetNetIoBytesOut(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s out :", iface), float64(val), 1000.0, fmt.Sprintf(" %.2f GB", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s out:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %.2f GB", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.status"):
 			if len(args) < 2 { continue }
@@ -91,57 +91,57 @@ func (w *NetworkWidget) Render(e *grid.Engine) {
 			if isUp, ok := status[iface]; ok && isUp {
 				statusStr = "[ UP ]"
 			}
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s :", iface), 0, 0, fmt.Sprintf(" %s", statusStr), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s:", shortIface(iface)), 0, 0, fmt.Sprintf(" %s", statusStr), w.Width))
 
 		case strings.HasPrefix(args[0], "net.errors"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val, _ := network.GetNetStatusError(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s err :", iface), float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s err:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.dropped"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val, _ := network.GetNetStatusDroped(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s drop :", iface), float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s drp:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
 
 		case args[0] == "net.wifi.signal":
 			val, _ := network.GetNetStatusWifi()
-			lines = append(lines, w.formatLine(line, "Wi-Fi :", float64(val), 100.0, fmt.Sprintf("%d%%", val), w.Width))
+			lines = append(lines, w.formatLine(line, "Wi-Fi:", float64(val), 100.0, fmt.Sprintf(" %d%%", val), w.Width))
 
 		case strings.HasPrefix(args[0], "ip.local"):
 			if len(args) < 2 { continue }
 			iface := args[1]
 			val := network.GetNetIpLocal(iface)
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s IP :", iface), 0, 0, fmt.Sprintf(" %s", val), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s IP:", shortIface(iface)), 0, 0, fmt.Sprintf(" %s", val), w.Width))
 
 		case args[0] == "ip.public":
 			val := network.GetNetIpPublic()
-			lines = append(lines, w.formatLine(line, "Pub IP :", 0, 0, fmt.Sprintf(" %s", val), w.Width))
+			lines = append(lines, w.formatLine(line, "Pub IP:", 0, 0, fmt.Sprintf(" %s", val), w.Width))
 
 		case args[0] == "ip.gateway":
 			val := network.GetNetIpGateway()
-			lines = append(lines, w.formatLine(line, "Gateway :", 0, 0, fmt.Sprintf(" %s", val), w.Width))
+			lines = append(lines, w.formatLine(line, "Gate:", 0, 0, fmt.Sprintf(" %s", val), w.Width))
 
 		case args[0] == "net.connections":
 			val := network.GetNetConnOpen()
-			lines = append(lines, w.formatLine(line, "Conns :", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
+			lines = append(lines, w.formatLine(line, "Conns:", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
 
 		case args[0] == "net.tcp":
 			val := network.GetNetConnTcp()
-			lines = append(lines, w.formatLine(line, "TCP :", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
+			lines = append(lines, w.formatLine(line, "TCP:", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
 
 		case args[0] == "net.udp":
 			val := network.GetNetConnUdp()
-			lines = append(lines, w.formatLine(line, "UDP :", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
+			lines = append(lines, w.formatLine(line, "UDP:", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
 
 		case args[0] == "net.ssh":
 			val := network.GetNetConnSsh()
-			lines = append(lines, w.formatLine(line, "SSH :", float64(val), 100.0, fmt.Sprintf(" %d", val), w.Width))
+			lines = append(lines, w.formatLine(line, "SSH:", float64(val), 100.0, fmt.Sprintf(" %d", val), w.Width))
 
 		case args[0] == "net.established":
 			val := network.GetNetConnEstablished()
-			lines = append(lines, w.formatLine(line, "Estab :", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
+			lines = append(lines, w.formatLine(line, "Estab:", float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
 		}
 	}
 	for i, l := range lines {
@@ -205,4 +205,23 @@ func (w *NetworkWidget) formatLine(line, prefix string, value, max float64, text
 	}
 
 	return prefix + textLabel
+}
+
+func shortIface(name string) string {
+	if strings.HasPrefix(name, "enx") || strings.HasPrefix(name, "eth") || strings.HasPrefix(name, "en") {
+		return "eth"
+	}
+	if strings.HasPrefix(name, "wl") {
+		return "wifi"
+	}
+	if name == "tailscale0" {
+		return "ts0"
+	}
+	if name == "all" {
+		return "all"
+	}
+	if len(name) > 4 {
+		return name[:4]
+	}
+	return name
 }

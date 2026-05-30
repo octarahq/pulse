@@ -8,9 +8,11 @@ import (
 )
 
 type interfaceState struct {
-	bytesRecv  uint64
-	bytesSent  uint64
-	lastUpdate time.Time
+	bytesRecv    uint64
+	bytesSent    uint64
+	lastUpdate   time.Time
+	lastSpeedIn  float64
+	lastSpeedOut float64
 }
 
 var netHistory = make(map[string]interfaceState)
@@ -45,26 +47,28 @@ func GetNetIoIn(interName string) (float64, error) {
 	}
 
 	now := time.Now()
-	state, exists := netHistory[interName]
+	key := interName + "_in"
+	state, exists := netHistory[key]
 
 	if !exists {
-		netHistory[interName] = interfaceState{bytesRecv: currentRecv, lastUpdate: now}
+		netHistory[key] = interfaceState{bytesRecv: currentRecv, lastUpdate: now}
 		return 0, nil
 	}
 
 	duration := now.Sub(state.lastUpdate).Seconds()
-	if duration <= 0 {
-		return 0, nil
+	if duration < 1.0 {
+		return state.lastSpeedIn, nil
 	}
 
 	deltaBytes := currentRecv - state.bytesRecv
-	speed := float64(deltaBytes) / duration
+	speed := utils.OctToMo(float64(deltaBytes) / duration)
 
 	state.bytesRecv = currentRecv
 	state.lastUpdate = now
-	netHistory[interName] = state
+	state.lastSpeedIn = speed
+	netHistory[key] = state
 
-	return utils.OctToMo(speed), nil
+	return speed, nil
 }
 
 func GetNetIoOut(interName string) (float64, error) {
@@ -74,38 +78,60 @@ func GetNetIoOut(interName string) (float64, error) {
 	}
 
 	now := time.Now()
-	state, exists := netHistory[interName]
+	key := interName + "_out"
+	state, exists := netHistory[key]
 
 	if !exists {
-		netHistory[interName] = interfaceState{bytesSent: currentSent, lastUpdate: now}
+		netHistory[key] = interfaceState{bytesSent: currentSent, lastUpdate: now}
 		return 0, nil
 	}
 
 	duration := now.Sub(state.lastUpdate).Seconds()
-	if duration <= 0 {
-		return 0, nil
+	if duration < 1.0 {
+		return state.lastSpeedOut, nil
 	}
 
 	deltaBytes := currentSent - state.bytesSent
-	speed := float64(deltaBytes) / duration
+	speed := utils.OctToMo(float64(deltaBytes) / duration)
 
 	state.bytesSent = currentSent
 	state.lastUpdate = now
-	netHistory[interName] = state
+	state.lastSpeedOut = speed
+	netHistory[key] = state
 
-	return utils.OctToMo(speed), nil
+	return speed, nil
 }
 
 func GetNetIoTotal(interName string) (float64, error) {
-	inSpeed, err := GetNetIoIn(interName)
+	currentRecv, currentSent, err := getInterfaceCounters(interName)
 	if err != nil {
 		return 0, err
 	}
-	outSpeed, err := GetNetIoOut(interName)
-	if err != nil {
-		return 0, err
+
+	now := time.Now()
+	key := interName + "_total"
+	state, exists := netHistory[key]
+
+	if !exists {
+		netHistory[key] = interfaceState{bytesRecv: currentRecv, bytesSent: currentSent, lastUpdate: now}
+		return 0, nil
 	}
-	return inSpeed + outSpeed, nil
+
+	duration := now.Sub(state.lastUpdate).Seconds()
+	if duration < 1.0 {
+		return state.lastSpeedIn, nil
+	}
+
+	deltaBytes := (currentRecv - state.bytesRecv) + (currentSent - state.bytesSent)
+	speed := utils.OctToMo(float64(deltaBytes) / duration)
+
+	state.bytesRecv = currentRecv
+	state.bytesSent = currentSent
+	state.lastUpdate = now
+	state.lastSpeedIn = speed
+	netHistory[key] = state
+
+	return speed, nil
 }
 
 func GetNetIoSpeed(interName string) (float64, float64, error) {
@@ -115,27 +141,30 @@ func GetNetIoSpeed(interName string) (float64, float64, error) {
 	}
 
 	now := time.Now()
-	state, exists := netHistory[interName]
+	key := interName + "_speed"
+	state, exists := netHistory[key]
 
 	if !exists {
-		netHistory[interName] = interfaceState{bytesRecv: currentRecv, bytesSent: currentSent, lastUpdate: now}
+		netHistory[key] = interfaceState{bytesRecv: currentRecv, bytesSent: currentSent, lastUpdate: now}
 		return 0, 0, nil
 	}
 
 	duration := now.Sub(state.lastUpdate).Seconds()
-	if duration <= 0 {
-		return 0, 0, nil
+	if duration < 1.0 {
+		return state.lastSpeedIn, state.lastSpeedOut, nil
 	}
 
-	recvSpeed := float64(currentRecv-state.bytesRecv) / duration
-	sentSpeed := float64(currentSent-state.bytesSent) / duration
+	recvSpeed := utils.OctToMo(float64(currentRecv-state.bytesRecv) / duration)
+	sentSpeed := utils.OctToMo(float64(currentSent-state.bytesSent) / duration)
 
 	state.bytesRecv = currentRecv
 	state.bytesSent = currentSent
 	state.lastUpdate = now
-	netHistory[interName] = state
+	state.lastSpeedIn = recvSpeed
+	state.lastSpeedOut = sentSpeed
+	netHistory[key] = state
 
-	return utils.OctToMo(recvSpeed), utils.OctToMo(sentSpeed), nil
+	return recvSpeed, sentSpeed, nil
 }
 
 func GetNetIoBytesIn(interName string) (float64, error) {

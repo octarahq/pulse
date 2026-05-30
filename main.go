@@ -35,6 +35,6 @@ func main() {
 
 		fmt.Print(engine.Flush())
 
-		time.Sleep(3 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
