@@ -272,6 +272,66 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 			}
 
 			lines = append(lines, fmt.Sprintf("Sys : %s", value))
+
+		// DISKs
+		case strings.Contains(args[0], "disk.percent"):
+			path := args[1]
+			value, err := monitor.GetDiskUsedPercent(path)
+			if err != nil {
+				lines = append(lines, "Cannot get disk stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Disk %s : %.2f%%", path, value))
+		case strings.Contains(args[0], "disk.inodes"):
+			path := args[1]
+			value, err := monitor.GetDiskInodesPercent(path)
+			if err != nil {
+				lines = append(lines, "Cannot get disk stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Disk %s : %.2f%%", path, value))
+		case strings.Contains(args[0], "disk"):
+			path := args[1]
+			used, err := monitor.GetDiskUsed(path)
+			if err != nil {
+				lines = append(lines, "Cannot get disk stats")
+				break
+			}
+
+			total, err := monitor.GetDiskTotal(path)
+			if err != nil {
+				lines = append(lines, "Cannot get disk stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Disk %s : %.2f/%.2fGo", path, used, total))
+		case strings.Contains(args[0], "io.read"):
+			value, err := monitor.GetIoReadMo()
+			if err != nil {
+				lines = append(lines, "Cannot get disk stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Io Read : %.2fMo/s", value))
+		case strings.Contains(args[0], "io.write"):
+			value, err := monitor.GetIoWriteMo()
+			if err != nil {
+				lines = append(lines, "Cannot get disk stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Io Write : %.2fMo/s", value))
+		case strings.Contains(args[0], "io.ops"):
+			value, err := monitor.GetIoOps()
+			if err != nil {
+				lines = append(lines, "Cannot get disk stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Io Ops : %dops/s", value))
+
 		}
 	}
 
