@@ -15,7 +15,7 @@ func MakeGauge(prefix string, value float64, max float64, textLabel string, widt
 	textRunes := []rune(textLabel)
 	prefixRunes := []rune(prefix)
 
-	availWidth := width - len(textRunes) - len(prefixRunes) - 1 // 1 for space
+	availWidth := width - len(textRunes) - len(prefixRunes) - 1
 
 	if availWidth <= 0 {
 		return prefix + textLabel
