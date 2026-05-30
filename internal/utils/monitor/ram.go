@@ -4,10 +4,6 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
-func octToGo(oct float64) float64 {
-	return oct / (1024.0 * 1024.0 * 1024.0)
-}
-
 func GetRamUsed() (float64, error) {
 	vm, err := mem.VirtualMemory()
 	if err != nil {
