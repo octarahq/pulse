@@ -214,6 +214,64 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 			}
 
 			lines = append(lines, fmt.Sprintf("Swap : %.2f%%", value))
+
+		// SYS
+		case args[0] == "sys.procs":
+			value, err := monitor.GetSysProcs()
+			if err != nil {
+				lines = append(lines, "Cannot get sys procs stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Procs : %d", value))
+		case args[0] == "sys.procs.running":
+			value, err := monitor.GetSysProcsRunning()
+			if err != nil {
+				lines = append(lines, "Cannot get sys procs stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Procs (running) : %d", value))
+		case args[0] == "sys.procs.blocked":
+			value, err := monitor.GetSysProcsBlocked()
+			if err != nil {
+				lines = append(lines, "Cannot get sys procs stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Procs (blocked): %d", value))
+		case args[0] == "sys.threads":
+			value, err := monitor.GetSysThreads()
+			if err != nil {
+				lines = append(lines, "Cannot get sys thread stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Threads : %d", value))
+		case args[0] == "sys.users":
+			value, err := monitor.GetSysUsers()
+			if err != nil {
+				lines = append(lines, "Cannot get sys users stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Users : %d", value))
+		case args[0] == "sys.uptime":
+			value, err := monitor.GetSysUptime()
+			if err != nil {
+				lines = append(lines, "Cannot get sys uptime stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Sys : %s", value))
+		case args[0] == "sys.ostype":
+			value, err := monitor.GetSysOsType()
+			if err != nil {
+				lines = append(lines, "Cannot get sys stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Sys : %s", value))
 		}
 	}
 
