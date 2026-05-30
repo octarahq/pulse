@@ -31,7 +31,6 @@ func init() {
 	})
 }
 
-
 func (w *MonitorSysWidget) formatLine(line, prefix string, value, max float64, textLabel string, width int) string {
 	args := strings.Split(line, ":")
 	opt := ""
@@ -59,7 +58,7 @@ func (w *MonitorSysWidget) formatLine(line, prefix string, value, max float64, t
 			} else if ratio < 0.0 {
 				ratio = 0.0
 			}
-			
+
 			if ratio == 0.0 {
 				h = 1
 			} else {
@@ -203,7 +202,7 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 				break
 			}
 
-			lines = append(lines, w.formatLine(line, "RAM Usage :", float64(value), float64(total), fmt.Sprintf(" %.2f/%.2f Go", value, total), w.Width))
+			lines = append(lines, w.formatLine(line, "RAM Usage :", float64(value), float64(total), fmt.Sprintf(" %.2f/%.2f GB", value, total), w.Width))
 		case args[0] == "ram.percent":
 			value, err := monitor.GetRamAvailable()
 			if err != nil {
@@ -230,7 +229,7 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 			}
 			total, _ := monitor.GetRamTotal()
 
-			lines = append(lines, w.formatLine(line, "RAM Avail :", float64(value), float64(total), fmt.Sprintf(" %.2f Go", value), w.Width))
+			lines = append(lines, w.formatLine(line, "RAM Avail :", float64(value), float64(total), fmt.Sprintf(" %.2f GB", value), w.Width))
 		case args[0] == "ram.cached":
 			value, err := monitor.GetRamCached()
 			if err != nil {
@@ -239,7 +238,7 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 			}
 			total, _ := monitor.GetRamTotal()
 
-			lines = append(lines, w.formatLine(line, "RAM Cached :", float64(value), float64(total), fmt.Sprintf(" %.2f Go", value), w.Width))
+			lines = append(lines, w.formatLine(line, "RAM Cached :", float64(value), float64(total), fmt.Sprintf(" %.2f GB", value), w.Width))
 		case args[0] == "ram.buffers":
 			value, err := monitor.GetRamBuffer()
 			if err != nil {
@@ -248,7 +247,7 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 			}
 			total, _ := monitor.GetRamTotal()
 
-			lines = append(lines, w.formatLine(line, "RAM Buffers :", float64(value), float64(total), fmt.Sprintf(" %.2f Go", value), w.Width))
+			lines = append(lines, w.formatLine(line, "RAM Buffers :", float64(value), float64(total), fmt.Sprintf(" %.2f GB", value), w.Width))
 
 		// SWAP
 		case args[0] == "swap":
@@ -263,7 +262,7 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 				break
 			}
 
-			lines = append(lines, w.formatLine(line, "Swap Usage :", float64(value), float64(total), fmt.Sprintf(" %.2f/%.2f Go", value, total), w.Width))
+			lines = append(lines, w.formatLine(line, "Swap Usage :", float64(value), float64(total), fmt.Sprintf(" %.2f/%.2f GB", value, total), w.Width))
 
 		case args[0] == "swap.percent":
 			value, err := monitor.GetSwapUsedPercent()
@@ -365,7 +364,7 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 				break
 			}
 
-			lines = append(lines, w.formatLine(line, fmt.Sprintf("Disk %s Used :", path), float64(used), float64(total), fmt.Sprintf(" %.2f/%.2f Go", used, total), w.Width))
+			lines = append(lines, w.formatLine(line, fmt.Sprintf("Disk %s Used :", path), float64(used), float64(total), fmt.Sprintf(" %.2f/%.2f GB", used, total), w.Width))
 		case strings.Contains(args[0], "io.read"):
 			value, err := monitor.GetIoReadMo()
 			if err != nil {

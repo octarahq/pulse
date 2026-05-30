@@ -172,7 +172,7 @@ func GetNetIoBytesIn(interName string) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return utils.OctToGo(float64(recv)), nil
+	return utils.OctToGB(float64(recv)), nil
 }
 
 func GetNetIoBytesOut(interName string) (float64, error) {
@@ -180,5 +180,5 @@ func GetNetIoBytesOut(interName string) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return utils.OctToGo(float64(sent)), nil
+	return utils.OctToGB(float64(sent)), nil
 }

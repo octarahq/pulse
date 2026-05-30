@@ -25,7 +25,7 @@ func GetDiskUsed(path string) (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(d.Used)), nil
+	return utils.OctToGB(float64(d.Used)), nil
 }
 
 func GetDiskTotal(path string) (float64, error) {
@@ -34,7 +34,7 @@ func GetDiskTotal(path string) (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(d.Total)), nil
+	return utils.OctToGB(float64(d.Total)), nil
 }
 
 func GetDiskFree(path string) (float64, error) {
@@ -43,7 +43,7 @@ func GetDiskFree(path string) (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(d.Free)), nil
+	return utils.OctToGB(float64(d.Free)), nil
 }
 
 func GetDiskUsedPercent(path string) (float64, error) {
@@ -61,7 +61,7 @@ func GetDiskInodesPercent(path string) (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(d.InodesUsedPercent), nil
+	return utils.OctToGB(d.InodesUsedPercent), nil
 }
 
 func updateIoStats() error {

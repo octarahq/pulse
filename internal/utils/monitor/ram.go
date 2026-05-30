@@ -21,7 +21,7 @@ func GetRamTotal() (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(vm.Total)), nil
+	return utils.OctToGB(float64(vm.Total)), nil
 }
 
 func GetRamAvailable() (float64, error) {
@@ -30,7 +30,7 @@ func GetRamAvailable() (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(vm.Available)), nil
+	return utils.OctToGB(float64(vm.Available)), nil
 }
 
 func GetRamCached() (float64, error) {
@@ -39,7 +39,7 @@ func GetRamCached() (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(vm.Cached)), nil
+	return utils.OctToGB(float64(vm.Cached)), nil
 }
 
 func GetRamBuffer() (float64, error) {
@@ -48,7 +48,7 @@ func GetRamBuffer() (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(vm.Buffers)), nil
+	return utils.OctToGB(float64(vm.Buffers)), nil
 }
 
 func GetSwapUsed() (float64, error) {
@@ -57,7 +57,7 @@ func GetSwapUsed() (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(vm.Used)), nil
+	return utils.OctToGB(float64(vm.Used)), nil
 }
 
 func GetSwapTotal() (float64, error) {
@@ -66,7 +66,7 @@ func GetSwapTotal() (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(float64(vm.Total)), nil
+	return utils.OctToGB(float64(vm.Total)), nil
 }
 
 func GetSwapUsedPercent() (float64, error) {
@@ -75,5 +75,5 @@ func GetSwapUsedPercent() (float64, error) {
 		return 0, err
 	}
 
-	return utils.OctToGo(vm.UsedPercent), nil
+	return utils.OctToGB(vm.UsedPercent), nil
 }
