@@ -1,6 +1,8 @@
 package monitor
 
 import (
+	"pulse/internal/utils"
+
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
@@ -19,7 +21,7 @@ func GetRamTotal() (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(vm.Total)), nil
+	return utils.OctToGo(float64(vm.Total)), nil
 }
 
 func GetRamAvailable() (float64, error) {
@@ -28,7 +30,7 @@ func GetRamAvailable() (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(vm.Available)), nil
+	return utils.OctToGo(float64(vm.Available)), nil
 }
 
 func GetRamCached() (float64, error) {
@@ -37,7 +39,7 @@ func GetRamCached() (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(vm.Cached)), nil
+	return utils.OctToGo(float64(vm.Cached)), nil
 }
 
 func GetRamBuffer() (float64, error) {
@@ -46,7 +48,7 @@ func GetRamBuffer() (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(vm.Buffers)), nil
+	return utils.OctToGo(float64(vm.Buffers)), nil
 }
 
 func GetSwapUsed() (float64, error) {
@@ -55,7 +57,7 @@ func GetSwapUsed() (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(vm.Used)), nil
+	return utils.OctToGo(float64(vm.Used)), nil
 }
 
 func GetSwapTotal() (float64, error) {
@@ -64,7 +66,7 @@ func GetSwapTotal() (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(vm.Total)), nil
+	return utils.OctToGo(float64(vm.Total)), nil
 }
 
 func GetSwapUsedPercent() (float64, error) {
@@ -73,5 +75,5 @@ func GetSwapUsedPercent() (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(vm.UsedPercent), nil
+	return utils.OctToGo(vm.UsedPercent), nil
 }

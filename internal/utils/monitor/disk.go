@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"pulse/internal/utils"
 	"sync"
 	"time"
 
@@ -24,7 +25,7 @@ func GetDiskUsed(path string) (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(d.Used)), nil
+	return utils.OctToGo(float64(d.Used)), nil
 }
 
 func GetDiskTotal(path string) (float64, error) {
@@ -33,7 +34,7 @@ func GetDiskTotal(path string) (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(d.Total)), nil
+	return utils.OctToGo(float64(d.Total)), nil
 }
 
 func GetDiskFree(path string) (float64, error) {
@@ -42,7 +43,7 @@ func GetDiskFree(path string) (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(float64(d.Free)), nil
+	return utils.OctToGo(float64(d.Free)), nil
 }
 
 func GetDiskUsedPercent(path string) (float64, error) {
@@ -60,7 +61,7 @@ func GetDiskInodesPercent(path string) (float64, error) {
 		return 0, err
 	}
 
-	return octToGo(d.InodesUsedPercent), nil
+	return utils.OctToGo(d.InodesUsedPercent), nil
 }
 
 func updateIoStats() error {
@@ -69,7 +70,7 @@ func updateIoStats() error {
 
 	now := time.Now()
 	if now.Sub(lastIoTime) < 500*time.Millisecond {
-		return nil // already updated recently
+		return nil
 	}
 
 	d, err := disk.IOCounters()
@@ -88,9 +89,9 @@ func updateIoStats() error {
 	if !lastIoTime.IsZero() {
 		elapsedSec := now.Sub(lastIoTime).Seconds()
 		if elapsedSec > 0 {
-			ioReadSpeed = octToMo((totalReadBytes - lastIoRead) / elapsedSec)
-			ioWriteSpeed = octToMo((totalWriteBytes - lastIoWrite) / elapsedSec)
-			ioOpsSpeed = int(float64(totalOps - lastIoOps) / elapsedSec)
+			ioReadSpeed = utils.OctToMo((totalReadBytes - lastIoRead) / elapsedSec)
+			ioWriteSpeed = utils.OctToMo((totalWriteBytes - lastIoWrite) / elapsedSec)
+			ioOpsSpeed = int(float64(totalOps-lastIoOps) / elapsedSec)
 		}
 	} else {
 		ioReadSpeed = 0
