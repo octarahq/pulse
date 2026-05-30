@@ -190,6 +190,30 @@ func (w *MonitorSysWidget) Render(e *grid.Engine) {
 			}
 
 			lines = append(lines, fmt.Sprintf("RAM : %.2fGo", value))
+
+		// SWAP
+		case args[0] == "swap":
+			value, err := monitor.GetSwapUsed()
+			if err != nil {
+				lines = append(lines, "Cannot get swap stats")
+				break
+			}
+			total, err := monitor.GetSwapTotal()
+			if err != nil {
+				lines = append(lines, "Cannot get swap stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Swap : %.2f/%.2fGo", value, total))
+
+		case args[0] == "swap.percent":
+			value, err := monitor.GetSwapUsedPercent()
+			if err != nil {
+				lines = append(lines, "Cannot get swap stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("Swap : %.2f%%", value))
 		}
 	}
 

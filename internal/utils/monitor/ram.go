@@ -52,3 +52,30 @@ func GetRamBuffer() (float64, error) {
 
 	return octToGo(float64(vm.Buffers)), nil
 }
+
+func GetSwapUsed() (float64, error) {
+	vm, err := mem.SwapMemory()
+	if err != nil {
+		return 0, err
+	}
+
+	return octToGo(float64(vm.Used)), nil
+}
+
+func GetSwapTotal() (float64, error) {
+	vm, err := mem.SwapMemory()
+	if err != nil {
+		return 0, err
+	}
+
+	return octToGo(float64(vm.Total)), nil
+}
+
+func GetSwapUsedPercent() (float64, error) {
+	vm, err := mem.SwapMemory()
+	if err != nil {
+		return 0, err
+	}
+
+	return octToGo(vm.UsedPercent), nil
+}
