@@ -12,7 +12,6 @@ import (
 
 type NetworkWidget struct {
 	BaseWidget
-	Format  string `toml:"format"`
 	History map[string][]int
 	Lines   []string
 }
@@ -48,43 +47,57 @@ func (w *NetworkWidget) Render(e *grid.Engine) {
 
 		switch {
 		case strings.HasPrefix(args[0], "net.in"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val, _ := network.GetNetIoIn(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s in:", shortIface(iface)), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.out"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val, _ := network.GetNetIoOut(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s out:", shortIface(iface)), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.total"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val, _ := network.GetNetIoTotal(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s tot:", shortIface(iface)), float64(val), 100.0, fmt.Sprintf(" %.2f MB/s", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.speed"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			in, out, _ := network.GetNetIoSpeed(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s:", shortIface(iface)), 0, 0, fmt.Sprintf(" ▼ %.1f MB/s ▲ %.1f MB/s", in, out), w.Width))
 
 		case strings.HasPrefix(args[0], "net.bytes.in"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val, _ := network.GetNetIoBytesIn(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s in:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %.2f GB", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.bytes.out"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val, _ := network.GetNetIoBytesOut(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s out:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %.2f GB", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.status"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			status, _ := network.GetNetStatus(iface)
 			statusStr := "[ DOWN ]"
@@ -94,13 +107,17 @@ func (w *NetworkWidget) Render(e *grid.Engine) {
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s:", shortIface(iface)), 0, 0, fmt.Sprintf(" %s", statusStr), w.Width))
 
 		case strings.HasPrefix(args[0], "net.errors"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val, _ := network.GetNetStatusError(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s err:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
 
 		case strings.HasPrefix(args[0], "net.dropped"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val, _ := network.GetNetStatusDroped(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s drp:", shortIface(iface)), float64(val), 1000.0, fmt.Sprintf(" %d", val), w.Width))
@@ -110,7 +127,9 @@ func (w *NetworkWidget) Render(e *grid.Engine) {
 			lines = append(lines, w.formatLine(line, "Wi-Fi:", float64(val), 100.0, fmt.Sprintf(" %d%%", val), w.Width))
 
 		case strings.HasPrefix(args[0], "ip.local"):
-			if len(args) < 2 { continue }
+			if len(args) < 2 {
+				continue
+			}
 			iface := args[1]
 			val := network.GetNetIpLocal(iface)
 			lines = append(lines, w.formatLine(line, fmt.Sprintf("%s IP:", shortIface(iface)), 0, 0, fmt.Sprintf(" %s", val), w.Width))
