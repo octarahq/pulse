@@ -39,6 +39,7 @@ func (w ServicesWidget) Render(e *grid.Engine) {
 		args := strings.Split(line, ":")
 
 		switch {
+		//Docker
 		case args[0] == "docker":
 			if len(args) < 2 {
 				lines = append(lines, "No containers are mentioned.")
@@ -95,6 +96,32 @@ func (w ServicesWidget) Render(e *grid.Engine) {
 			}
 
 			lines = append(lines, fmt.Sprintf("Containers: %d up, %d down", val1, val2))
+
+		// SystemD
+		case args[0] == "systemd":
+			if len(args) < 2 {
+				lines = append(lines, "No jobs are mentioned.")
+				break
+			}
+			val, err := services.GetSysStatus(args[1])
+			if err != nil {
+				lines = append(lines, "Cannot get systemd stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("%s is %s", args[1], val))
+		case args[0] == "systemd.cron":
+			if len(args) < 2 {
+				lines = append(lines, "No jobs are mentioned.")
+				break
+			}
+			val, err := services.GetSysCronStatus(args[1])
+			if err != nil {
+				lines = append(lines, "Cannot get systemd stats")
+				break
+			}
+
+			lines = append(lines, fmt.Sprintf("%s cron is %s", args[1], val))
 		}
 	}
 	for i, l := range lines {
