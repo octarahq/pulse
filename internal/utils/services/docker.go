@@ -2,10 +2,12 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"sync"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	"github.com/shirou/gopsutil/v4/docker"
 )
 
 var (
@@ -19,65 +21,43 @@ type containerState struct {
 	LastAutoRestarts int
 }
 
-func GetDockerContainerState(container string) (string, error) {
-	do, err := docker.GetDockerStat()
-	if err != nil {
-		return "", err
-	}
-
-	var cn *docker.CgroupDockerStat
-	for _, c := range do {
-		if c.Name == container {
-			cn = &c
-			break
-		}
-	}
-
-	if cn == nil {
-		return "Container not found", nil
-	}
-
-	state := cn.Running
-	if state {
-		return "Running", nil
-	} else {
-		return "Exited", nil
-	}
-}
-
-func GetDockerContainerUptime(container string) (string, error) {
-	do, err := docker.GetDockerStat()
-	if err != nil {
-		return "", err
-	}
-
-	var cn *docker.CgroupDockerStat
-	for _, c := range do {
-		if c.Name == container {
-			cn = &c
-			break
-		}
-	}
-
-	if cn == nil {
-		return "Container not found", nil
-	}
-
-	return cn.Status, nil
-}
-
-func GetDockerContainerRestartedTime(containerName string) (int, error) {
+func GetDockerContainerState(cli *client.Client, containerName string) (string, error) {
 	ctx := context.Background()
-
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return 0, err
-	}
-	defer cli.Close()
-
 	inspect, err := cli.ContainerInspect(ctx, containerName)
 	if err != nil {
-		return 0, err
+		return "[ NOT FOUND ]", nil
+	}
+
+	if inspect.State.Running {
+		return "[ RUNNING ]", nil
+	} else if inspect.State.Dead || (inspect.State.ExitCode != 0 && inspect.State.ExitCode != 137 && inspect.State.ExitCode != 143) {
+		return "[ CRASHED ]", nil
+	}
+	return "[ EXITED ]", nil
+}
+
+func GetDockerContainerHealth(cli *client.Client, containerName string) (string, error) {
+	ctx := context.Background()
+	inspect, err := cli.ContainerInspect(ctx, containerName)
+	if err != nil {
+		return "[ NOT FOUND ]", nil
+	}
+
+	if inspect.State.Health != nil {
+		status := strings.ToUpper(inspect.State.Health.Status)
+		if status == "HEALTHY" {
+			return "[ HEALTHY ]", nil
+		}
+		return "[ " + status + " ]", nil
+	}
+	return "[ NO HEALTHCHECK ]", nil
+}
+
+func GetDockerContainerRestartedTime(cli *client.Client, containerName string) (string, error) {
+	ctx := context.Background()
+	inspect, err := cli.ContainerInspect(ctx, containerName)
+	if err != nil {
+		return "[ NOT FOUND ]", nil
 	}
 
 	containerStatsMutex.Lock()
@@ -101,35 +81,23 @@ func GetDockerContainerRestartedTime(containerName string) (int, error) {
 		state.LastAutoRestarts = inspect.RestartCount
 	}
 
-	return state.ManualRestarts + inspect.RestartCount, nil
+	totalRestarts := state.ManualRestarts + inspect.RestartCount
+	if inspect.State.Restarting {
+		return fmt.Sprintf("Restarts: %d [ LOOPING ]", totalRestarts), nil
+	}
+	return fmt.Sprintf("Restarts: %d", totalRestarts), nil
 }
 
-func GetDockerContainerAutoRestartedTime(containerName string) (int, error) {
+func GetDockerTotal(cli *client.Client) (int, int, error) {
 	ctx := context.Background()
-
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return 0, err
-	}
-	defer cli.Close()
-
-	inspect, err := cli.ContainerInspect(ctx, containerName)
-	if err != nil {
-		return 0, err
-	}
-
-	return inspect.RestartCount, nil
-}
-
-func GetDockerTotal() (int, int, error) {
-	do, err := docker.GetDockerStat()
+	containers, err := cli.ContainerList(ctx, container.ListOptions{All: true})
 	if err != nil {
 		return 0, 0, err
 	}
 
 	statsUp, statsDown := 0, 0
-	for _, cn := range do {
-		if cn.Running {
+	for _, c := range containers {
+		if c.State == "running" || c.State == "restarting" {
 			statsUp++
 		} else {
 			statsDown++

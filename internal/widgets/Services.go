@@ -7,22 +7,25 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/docker/docker/client"
 )
 
 type ServicesWidget struct {
 	BaseWidget
-	Lines []string `toml:"lines"`
+	Manager      string   `toml:"manager"`
+	Lines        []string `toml:"lines"`
+	dockerClient *client.Client
 }
 
 func init() {
 	Register("services", func(prim toml.Primitive, meta *toml.MetaData) (Widget, error) {
 		var w ServicesWidget
 		err := meta.PrimitiveDecode(prim, &w)
-		return w, err
+		return &w, err
 	})
 }
 
-func (w ServicesWidget) Render(e *grid.Engine) {
+func (w *ServicesWidget) Render(e *grid.Engine) {
 	if w.Title == "" {
 		w.Title = "Services monitor"
 	}
@@ -33,98 +36,114 @@ func (w ServicesWidget) Render(e *grid.Engine) {
 		return
 	}
 
+	if w.Manager == "docker" && w.dockerClient == nil {
+		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		if err == nil {
+			w.dockerClient = cli
+		}
+	} else if w.Manager != "docker" && w.dockerClient == nil {
+		for _, l := range w.Lines {
+			if strings.HasPrefix(l, "docker") {
+				cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+				if err == nil {
+					w.dockerClient = cli
+				}
+				break
+			}
+		}
+	}
+
 	var lines []string
 
 	for _, line := range w.Lines {
-		args := strings.Split(line, ":")
+		rawLine := line
+		if w.Manager == "docker" && !strings.Contains(line, ":") {
+			line = "docker:" + line
+		}
 
-		switch {
-		//Docker
-		case args[0] == "docker":
-			if len(args) < 2 {
-				lines = append(lines, "No containers are mentioned.")
+		args := strings.SplitN(line, ":", 2)
+		cmd := args[0]
+		target := ""
+		if len(args) > 1 {
+			target = args[1]
+		} else {
+			target = rawLine
+		}
+
+		switch cmd {
+		case "docker":
+			if w.dockerClient == nil {
+				lines = append(lines, formatServiceLine(target, "[ ERR ]", w.Width))
 				break
 			}
-			val, err := services.GetDockerContainerState(args[1])
+			val, _ := services.GetDockerContainerState(w.dockerClient, target)
+			lines = append(lines, formatServiceLine(target, val, w.Width))
+			
+		case "docker.health":
+			if w.dockerClient == nil {
+				lines = append(lines, formatServiceLine(target, "[ ERR ]", w.Width))
+				break
+			}
+			val, _ := services.GetDockerContainerHealth(w.dockerClient, target)
+			lines = append(lines, formatServiceLine(target, val, w.Width))
+			
+		case "docker.restart":
+			if w.dockerClient == nil {
+				lines = append(lines, formatServiceLine(target, "[ ERR ]", w.Width))
+				break
+			}
+			val, _ := services.GetDockerContainerRestartedTime(w.dockerClient, target)
+			lines = append(lines, formatServiceLine(target, val, w.Width))
+			
+		case "docker.total":
+			if w.dockerClient == nil {
+				lines = append(lines, "Containers: [ ERR ]")
+				break
+			}
+			val1, val2, err := services.GetDockerTotal(w.dockerClient)
 			if err != nil {
-				lines = append(lines, "(need admin) Cannot get docker stats")
+				lines = append(lines, "Containers: [ ERR ]")
 				break
 			}
+			lines = append(lines, fmt.Sprintf("Containers: %d up / %d down", val1, val2))
 
-			lines = append(lines, fmt.Sprintf("%s is %s", args[1], val))
-		case args[0] == "docker.uptime":
-			if len(args) < 2 {
-				lines = append(lines, "No containers are mentioned.")
-				break
-			}
-			val, err := services.GetDockerContainerUptime(args[1])
-			if err != nil {
-				lines = append(lines, "(need admin) Cannot get docker stats")
-				break
-			}
-
-			lines = append(lines, fmt.Sprintf("%s is %s", args[1], val))
-		case args[0] == "docker.restart":
-			if len(args) < 2 {
-				lines = append(lines, "No containers are mentioned.")
-				break
-			}
-			val, err := services.GetDockerContainerRestartedTime(args[1])
-			if err != nil {
-				lines = append(lines, "(need admin) Cannot get docker stats")
-				break
-			}
-
-			lines = append(lines, fmt.Sprintf("%s as restarted %d times", args[1], val))
-		case args[0] == "docker.restartauto":
-			if len(args) < 2 {
-				lines = append(lines, "No containers are mentioned.")
-				break
-			}
-			val, err := services.GetDockerContainerAutoRestartedTime(args[1])
-			if err != nil {
-				lines = append(lines, "(need admin) Cannot get docker stats")
-				break
-			}
-
-			lines = append(lines, fmt.Sprintf("%s as auto-restarted %d times", args[1], val))
-		case args[0] == "docker.total":
-			val1, val2, err := services.GetDockerTotal()
-			if err != nil {
-				lines = append(lines, "(need admin) Cannot get docker stats")
-				break
-			}
-
-			lines = append(lines, fmt.Sprintf("Containers: %d up, %d down", val1, val2))
-
-		// SystemD
-		case args[0] == "systemd":
-			if len(args) < 2 {
-				lines = append(lines, "No jobs are mentioned.")
-				break
-			}
-			val, err := services.GetSysStatus(args[1])
-			if err != nil {
-				lines = append(lines, "Cannot get systemd stats")
-				break
-			}
-
-			lines = append(lines, fmt.Sprintf("%s is %s", args[1], val))
-		case args[0] == "systemd.cron":
-			if len(args) < 2 {
-				lines = append(lines, "No jobs are mentioned.")
-				break
-			}
-			val, err := services.GetSysCronStatus(args[1])
-			if err != nil {
-				lines = append(lines, "Cannot get systemd stats")
-				break
-			}
-
-			lines = append(lines, fmt.Sprintf("%s cron is %s", args[1], val))
+		case "systemd":
+			val, _ := services.GetSysStatus(target)
+			lines = append(lines, formatServiceLine(target, val, w.Width))
+			
+		case "systemd.cron":
+			val, _ := services.GetSysCronStatus(target)
+			lines = append(lines, formatServiceLine(target, val, w.Width))
+			
+		case "proc.name":
+			val, _ := services.GetProcessByName(target)
+			lines = append(lines, formatServiceLine(target, val, w.Width))
+			
+		case "proc.pid":
+			val, _ := services.GetProcessByPID(target)
+			lines = append(lines, formatServiceLine(target, val, w.Width))
+			
+		default:
+			lines = append(lines, formatServiceLine(target, "[ UNKNOWN CMD ]", w.Width))
 		}
 	}
+	
 	for i, l := range lines {
-		e.DrawTextDontCenter(w.X, w.Y+i, w.Width, w.Height, fmt.Sprintf(" %s", l))
+		e.DrawTextDontCenter(w.X, w.Y+i+1, w.Width, w.Height, " "+l)
 	}
+}
+
+func formatServiceLine(name, status string, width int) string {
+	availWidth := width - 4
+	if availWidth <= 0 {
+		return name + " " + status
+	}
+	
+	spacesCount := availWidth - len([]rune(name)) - len([]rune(status))
+	if spacesCount < 1 {
+		spacesCount = 1
+	}
+	
+	spaces := strings.Repeat(" ", spacesCount)
+	return name + spaces + status
 }
